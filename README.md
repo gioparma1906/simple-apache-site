@@ -1,3 +1,3 @@
 # Simple Apache Site
 
-A basic Apache project for deploying a static site using GitHub Actions CI/CD.
+A basic Apache project for deploying a static website using GitHub Actions CI/CD.
