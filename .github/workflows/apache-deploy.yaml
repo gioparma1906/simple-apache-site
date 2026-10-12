@@ -1,0 +1,45 @@
+# Crea un GitHub Actions workflow per distribuire il server web Apache
+name: Apache Deployment
+
+permissions:
+  contents: read
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy: 
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Apache
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y apache2
+
+      - name: Validate site files
+        run: |
+          test -d public-html || { echo "::error::public-html directory is missing"; exit 1; }
+          html_file=$(find public-html -type f -name '*.html' -print -quit)
+          if [ -z "$html_file" ]; then
+            echo "::error::No HTML files found in public-html"
+            exit 1
+          fi
+
+      - name: Copy files to Apache web directory
+        run: |
+          sudo cp -a public-html/. /var/www/html/
+          sudo chown -R www-data:www-data /var/www/html/
+
+      - name: Restart Apache service
+        run: |
+          sudo systemctl restart apache2
+
+      - name: Verify Apache is running
+        run: |
+          curl -I http://localhost
